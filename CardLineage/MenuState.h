@@ -12,6 +12,8 @@
 #include "BattleEffect.h"
 #include <memory>
 #include "FloatingTextManager.h"
+#include "EnemyController.h"
+#include "ParallaxBg.h"
 
 class MenuState :
 	public GameState
@@ -33,9 +35,10 @@ private:
 	};
 
 	std::shared_ptr<FloatingTextManager> m_battleText;
-
+	std::shared_ptr <ParallaxBg> m_background;
 	std::shared_ptr<AnimationManager> m_animations;
 	std::shared_ptr<BattleEffect> m_effectManager;
+	std::shared_ptr < EnemyController> m_enemyController;
 
 	std::vector <std::shared_ptr<Character>> m_party;
 	std::vector <std::shared_ptr<Enemy>> m_enemies;
@@ -61,6 +64,11 @@ private:
 	void MouseOverTarget(int& x, int& y);
 	void DrawTargets();
 	void ResetAlliesPos();
+	void ResetEnemyPos();
+
+	void DrawPhase();
+	void DebugKeys(SDL_Keycode _key);
+	void PlayerTurnLeftClick(int& x, int& y);
 
 
 };

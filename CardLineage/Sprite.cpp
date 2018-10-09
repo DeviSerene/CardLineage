@@ -45,11 +45,19 @@ void Sprite::AniDraw(SDL_Rect& _cellRect)
 		SDL_RenderCopy(m_renderer, m_image, &_cellRect, &m_position);
 }
 
-void Sprite::TintAniDraw(SDL_Rect& _cellRect, Uint8 _r, Uint8 _g, Uint8 _b) //draw for animations
+void Sprite::TintAniDraw(SDL_Rect& _cellRect, Uint8 _r, Uint8 _g, Uint8 _b, bool flip) //draw for animations
 {
 	if (m_image)
 	{
 		SDL_SetTextureColorMod(m_image, _r, _g, _b);
-		SDL_RenderCopy(m_renderer, m_image, &_cellRect, &m_position);
+
+		if (flip)
+		{
+			SDL_RenderCopyEx(m_renderer, m_image, &_cellRect, &m_position,0,NULL, SDL_FLIP_HORIZONTAL);
+		}
+		else
+		{
+			SDL_RenderCopy(m_renderer, m_image, &_cellRect, &m_position);
+		}
 	}
 }

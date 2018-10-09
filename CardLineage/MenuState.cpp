@@ -3,40 +3,48 @@
 MenuState::MenuState(std::shared_ptr<GameData> _gamedata)
 	: GameState(_gamedata)
 {
+	m_background = std::shared_ptr<ParallaxBg>(new ParallaxBg("grass", 5));
+	m_battleState = 0;
 	m_chosenCard = -1;
-	m_partyPos.push_back({ 350, 150, 200,200 });
-	m_partyPos.push_back({ 150, 175, 200,200 });
+	//initialise the party position data
+	m_partyPos.push_back({ 350, 250, 200,200 });
+	m_partyPos.push_back({ 150, 275, 200,200 });
 
-	m_enemyPos.push_back({ 950, 150, 200,200 });
-	m_enemyPos.push_back({ 1150, 175, 200,200 });
+	m_enemyPos.push_back({ 950, 250, 200,200 });
+	m_enemyPos.push_back({ 1150, 275, 200,200 });
 
 	//AudioManager::MusicPlay("assets/music.wav");
-	m_cards.push_back((std::shared_ptr<Card>)new Card());
-	m_cards.push_back((std::shared_ptr<Card>)new Card("Test"));
-	m_cards.push_back((std::shared_ptr<Card>)new Card("Hello"));
-	m_cards.push_back((std::shared_ptr<Card>)new Card("Fire"));
-	m_cards.push_back((std::shared_ptr<Card>)new Card("Flare"));
-	m_cards.push_back((std::shared_ptr<Card>)new Card("Flaire"));
-	std::vector<int> cards;
-	cards.push_back(0);
-	cards.push_back(1);
-	cards.push_back(2);
-	cards.push_back(3);
-	cards.push_back(4);
-	cards.push_back(5);
-	m_animations = (std::shared_ptr<AnimationManager>)new AnimationManager();
+	//Here we are initiating the cards, however this will be loading into the GameData in the real game
+	m_cards.push_back(std::shared_ptr<Card>(new Card()));
+	m_cards.push_back(std::shared_ptr<Card>(new Card("Test")));
+	m_cards.push_back(std::shared_ptr<Card>(new Card("Hello")));
+	m_cards.push_back(std::shared_ptr<Card>(new Card("Healing Fire")));
+	m_cards.push_back(std::shared_ptr<Card>(new Card("Curing")));
+	m_combocards.push_back(std::shared_ptr<Card>(new Card(m_cards[0])));
 
-	m_combocards.push_back((std::shared_ptr<Card>)new Card(m_cards[0]));
+	std::vector< std::shared_ptr<Effect>> kamiEffects;
+	std::vector< std::shared_ptr<AniEffect>> kamiAniEffects;
+	kamiEffects.push_back(std::shared_ptr<Effect>(new Effect(0, 3, 75, 2, 0, 1, 1)));
+	kamiAniEffects.push_back(std::shared_ptr<AniEffect>(new AniEffect(2, 0.5f, 0.55f)));
+	kamiEffects.push_back(std::shared_ptr<Effect>(new Effect(0, 1, 25, 2, 0, 0, 0)));
+	kamiAniEffects.push_back(std::shared_ptr<AniEffect>(new AniEffect(2, 0.70f, 0.75f)));
+	m_cards.push_back(std::shared_ptr<Card>(new Card("Kami", 0, 1, 1, 1, kamiEffects, kamiAniEffects)));
 
+	//Load up the characters, in the real game, we will have them loaded up from data
+	m_party.push_back(std::shared_ptr<Character>(new Character()));
+	m_party.push_back(std::shared_ptr<Character>(new Character()));
+	m_party[0]->SetColour(1);
+	m_party[1]->SetColour(2);
+	m_enemies.push_back(std::shared_ptr<Enemy>(new Enemy()));
+	m_enemies.push_back(std::shared_ptr<Enemy>(new Enemy()));
+	ResetAlliesPos();
+	ResetEnemyPos();
+
+	//Create the deck, and fill it with the party members, shuffle, and set the comboCard data
 	deck = new BattleDeck();
-	m_party.push_back((std::shared_ptr<Character>)new Character());
-	m_party.push_back((std::shared_ptr<Character>)new Character());
-	m_enemies.push_back((std::shared_ptr<Enemy>)new Enemy());
-	m_enemies.push_back((std::shared_ptr<Enemy>)new Enemy());
 	deck->InitCharacter(m_cards, m_party[0]->GetCards(), m_party[0]->GetStats(), 1);
 	deck->InitCharacter(m_cards, m_party[1]->GetCards(), m_party[1]->GetStats(), 2);
 	deck->ShuffleDraw();
-	deck->DrawCards(5);
 	deck->SetCCDeck(m_combocards);
 
 	//m_button.SetFunction([](BattleDeck* deck) {deck->ChangeRow(1);});
@@ -44,16 +52,13 @@ MenuState::MenuState(std::shared_ptr<GameData> _gamedata)
 	//212 * 3 = 636
 	m_buttons.push_back(new Button("assets/ui/down.png", { 795,700,25,25 }, false));
 
+	m_animations = std::shared_ptr<AnimationManager>(new AnimationManager());
 	m_animations->AddAnimation(0, m_partyPos[0]);
 	m_animations->AddAnimation(0, m_partyPos[1]);
-	//BattleEffect(int* _battleState, int* _target, std::shared_ptr<AnimationManager> _animan, std::vector<std::shared_ptr<Character>>& _partyPointer, std::vector<std::shared_ptr<Enemy>>& _enemyPointer, std::vector<SDL_Rect> _partyPos, std::vector<SDL_Rect> _enemyPos);
-	m_effectManager = (std::shared_ptr<BattleEffect>)new BattleEffect(&m_battleState, &m_target, &m_targetType, m_animations, m_party, m_enemies, m_partyPos, m_enemyPos);
-
-	ResetAlliesPos();
-
-	//SDL_Renderer* _renderer, std::string _text, int _x, int _y, int _r, int _g, int _b
-	m_battleText = (std::shared_ptr<FloatingTextManager>)new FloatingTextManager(m_gameData->GetRenderer());
-	m_effectManager->InitText(&m_battleText.operator*());
+	m_effectManager = std::shared_ptr<BattleEffect>(new BattleEffect(&m_battleState, &m_target, &m_targetType, m_animations, m_party, m_enemies, m_partyPos, m_enemyPos));
+	m_battleText = std::shared_ptr<FloatingTextManager>(new FloatingTextManager(m_gameData->GetRenderer()));
+	m_effectManager->InitText(m_battleText);
+	m_enemyController = std::shared_ptr<EnemyController>(new EnemyController(&m_battleState, &m_target, &m_targetType, m_effectManager, m_party, m_enemies, m_partyPos, m_enemyPos));
 }
 
 MenuState::~MenuState()
@@ -62,31 +67,8 @@ MenuState::~MenuState()
 	m_effectManager->DeInit();
 	m_effectManager = nullptr;
 
-	//for each (Character* var in m_party)
-	//{
-	//	delete var;
-	//}
-	m_party.clear();
-
-	//for each (Enemy* var in m_enemies)
-	//{
-	//	delete var;
-	//}
-	m_enemies.clear();
-
+	
 	delete deck;
-
-	//for each (Card* var in m_cards)
-	//{
-	//	delete var;
-	//}
-	m_cards.clear();
-
-	//for each (Card* var in m_combocards)
-	//{
-	//	delete var;
-	//}
-	m_combocards.clear();
 
 	for each (Button* var in m_buttons)
 	{
@@ -112,64 +94,14 @@ bool MenuState::HandleSDLEvents()
 			return false;
 			break;
 		case SDL_KEYDOWN:
+			DebugKeys(ev.key.keysym.sym);
 			switch (ev.key.keysym.sym) //what key has been pressed?
 			{
 			case SDLK_ESCAPE:
 				m_gameData->m_stateManager->RemoveLastState();
 				return false;
 				break;
-			case SDLK_1:
-				m_battleText->AddNewText("1", m_partyPos[0].x+100, m_partyPos[0].y+100, 255, 0, 0);
-				m_party[0]->GetStats()->ModifyEffect(0, -1);
-				//m_party[0]->MoveTo({ 200,300,100,100 });
-				break;
-			case SDLK_2:
-				m_battleText->AddNewText("1", m_partyPos[0].x + 100, m_partyPos[0].y + 100, 0, 255, 0);
-				m_party[0]->GetStats()->ModifyEffect(0, 1);
-				break;
-			case SDLK_3:
-				m_animations->AddAnimation(0, m_partyPos[0]);
-				break;
-			case SDLK_q:
-				deck->DrawCard(); m_chosenCard = -1;
-				break;
-			case SDLK_w:
-				deck->DiscardCard(0); m_chosenCard = -1;
-				break;
-			case SDLK_e:
-				deck->DiscardHand(); m_chosenCard = -1;
-				break;
-			case SDLK_r:
-				deck->ShuffleDiscardToDraw(); m_chosenCard = -1;
-				break;
-			case SDLK_t:
-				deck->DiscardCC(0); m_chosenCard = -1;
-				break;
-			case SDLK_a:
-				deck->ToggleDDD(0);
-				m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
-				m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
-				break;
-			case SDLK_z:
-				deck->ToggleDDD(1);
-				m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
-				m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
-				break;
-			case SDLK_x:
-				deck->ToggleDDD(2);
-				m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
-				m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
-				break;
-			case SDLK_s:
-				deck->ChangeRow(1);
-				m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
-				m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
-				break;
-			case SDLK_d:
-				deck->ChangeRow(-1);
-				m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
-				m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
-				break;
+			
 			}
 			break;
 
@@ -177,107 +109,7 @@ bool MenuState::HandleSDLEvents()
 			switch (ev.button.button) //what key has been pressed?
 			{
 			case SDL_BUTTON_LEFT:
-				if (m_buttons[0]->MouseRect(x, y))
-				{
-					deck->ChangeRow(-1);
-					m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
-					m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
-				}
-				else if(m_buttons[1]->MouseRect(x, y))
-				{
-					deck->ChangeRow(1);
-					m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
-					m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
-				}
-				if (m_chosenCard == -1 && m_effectManager->IsEffectEmpty())
-				{
-					for (int i = 0; i < deck->GetHand().size(); i++)
-					{
-						if (MouseRect(x, y, deck->GetHand()[i]->GetPos()))
-						{
-							//player has selected a card from the hand
-							//does the user have enough mana to cast this?
-							if (deck->GetHand()[i]->GetStats()->GetMana() >= deck->GetHand()[i]->GetCard()->GetMana())
-							{
-								m_chosenCard = i;
-								m_targetType = deck->GetHand()[i]->GetCard()->GetTarget();
-								InitTargets();
-
-								SDL_Rect moveTo = m_partyPos[deck->GetHand()[i]->GetCol() - 1];
-								moveTo.x = moveTo.x + 25;
-								m_party[deck->GetHand()[i]->GetCol()-1]->MoveTo(moveTo);
-							}
-							else
-							{
-								//insufficient mana
-								m_battleText->AddNewText("Insufficient Mana", x, y, 0, 0, 255);
-							}
-						}
-					}
-					for (int i = 0; i < deck->GetComboHand().size(); i++)
-					{
-						if (MouseRect(x, y, deck->GetComboHand()[i]->GetPos()))
-						{
-							//player has selected a combocard
-							//do the users have enough mana to cast this?
-							if (deck->GetComboHand()[i]->GetStats()->GetMana() >= deck->GetComboHand()[i]->GetCard()->GetMana()
-							 && deck->GetComboHand()[i]->GetStats2()->GetMana() >= deck->GetComboHand()[i]->GetCard()->GetMana())
-							{
-								m_chosenCard = i+100;
-								m_targetType = deck->GetComboHand()[i]->GetCard()->GetTarget();
-								InitTargets();
-
-
-								SDL_Rect moveTo = m_partyPos[deck->GetHand()[deck->GetComboHighlights()[i][0]]->GetCol() - 1];
-								moveTo.x += 25;
-								m_party[deck->GetHand()[deck->GetComboHighlights()[i][0]]->GetCol() - 1]->MoveTo(moveTo);
-
-								moveTo = m_partyPos[deck->GetHand()[deck->GetComboHighlights()[i][1]]->GetCol() - 1];
-								moveTo.x += 25;
-								m_party[deck->GetHand()[deck->GetComboHighlights()[i][1]]->GetCol() - 1]->MoveTo(moveTo);
-							}
-							else
-							{
-								//insufficient mana
-								m_battleText->AddNewText("Insufficient Mana", x, y, 0, 0, 255);
-							}
-						}
-					}
-				}
-				else if (m_chosenCard > -1)
-				{
-					for (int i = 0; i < m_targets.size(); i++)
-					{
-						if (MouseRect(x, y, m_targets[i].m_pos)) //cant target a dead enemy
-						{
-							m_target = m_targets[i].m_id; //set the target
-							if (m_chosenCard >= 100) //is this a combo card?
-							{
-								//decrease mana
-								m_party[deck->GetHand()[deck->GetComboHighlights()[m_chosenCard - 100][0]]->GetCol() - 1]->GetStats()->ModifyMana(-deck->GetComboHand()[m_chosenCard - 100]->GetCard()->GetMana());
-								m_party[deck->GetHand()[deck->GetComboHighlights()[m_chosenCard - 100][1]]->GetCol() - 1]->GetStats()->ModifyMana(-deck->GetComboHand()[m_chosenCard - 100]->GetCard()->GetMana());
-
-								m_effectManager->SetUser(m_party[deck->GetHand()[deck->GetComboHighlights()[m_chosenCard-100][0]]->GetCol() - 1]); //set the user in the effects manager to get stats from
-								m_effectManager->SetComboer(m_party[deck->GetHand()[deck->GetComboHighlights()[m_chosenCard - 100][1]]->GetCol() - 1]); //set the combo user, to get stats from
-								m_effectManager->AddEffects(deck->GetComboHand()[m_chosenCard-100]->GetCard()->GetEffects(), deck->GetComboHand()[m_chosenCard - 100]->GetCard()->GetAniEffects()); //add all the card's effects
-								deck->DiscardCC(m_chosenCard - 100); //discard the card
-							}
-							else
-							{
-								m_party[deck->GetHand()[m_chosenCard]->GetCol() - 1]->GetStats()->ModifyMana(-deck->GetHand()[m_chosenCard]->GetCard()->GetMana());
-
-								m_effectManager->SetUser(m_party[deck->GetHand()[m_chosenCard]->GetCol() - 1]);
-								m_effectManager->AddEffects(deck->GetHand()[m_chosenCard]->GetCard()->GetEffects(), deck->GetHand()[m_chosenCard]->GetCard()->GetAniEffects());
-								deck->DiscardCard(m_chosenCard);
-							}
-
-							//m_targetType = -1; //reset variables
-							m_chosenCard = -1;
-							deck->UpdateHandPosition(); //update removed cards
-							ResetAlliesPos(); //reset allies
-						}
-					}
-				}
+				PlayerTurnLeftClick(x, y);
 
 				break;
 			case SDL_BUTTON_RIGHT:
@@ -426,6 +258,8 @@ void MenuState::DrawTargets()
 
 void MenuState::Update(float _deltaTime)
 {
+	m_background->Update(_deltaTime);
+	DrawPhase();
 	//update part and enemies animations
 	for (int i = 0; i < m_party.size(); i++)
 	{
@@ -441,27 +275,33 @@ void MenuState::Update(float _deltaTime)
 	deck->Update( _deltaTime);
 	m_animations->Update(_deltaTime);
 	m_effectManager->Update(_deltaTime);
-
 	m_battleText->Update(_deltaTime);
+
+	if (m_battleState == 10)
+	{
+		m_enemyController->Update(_deltaTime);
+	}
+
 }
 
 void MenuState::Draw()
 {
-	SpriteFactory::Draw("assets/cards/Bkg_0.png", { 0,0,1600,800 });
+	m_background->Draw();
+	//SpriteFactory::Draw("assets/greece2.png", { 0,0,1600,900 });
 	//draw party 
 	if (!m_party.empty())
 	{
 		for (int i = 0; i < m_party.size(); i++)
 		{
 			m_party[i]->SetManaHighlight(0);
-			m_party[i]->DrawBattle( 200, 200, 200);
+			m_party[i]->DrawBattle( 230, 230, 230);
 		}
 	}
 	if (!m_enemies.empty())
 	{
 		for (int i = 0; i < m_enemies.size(); i++)
 		{
-			m_enemies[i]->DrawBattle(m_enemyPos[i], 200, 200, 200);
+			m_enemies[i]->DrawBattle( 230, 230, 230);
 		}
 	}
 
@@ -498,5 +338,230 @@ void MenuState::ResetAlliesPos()
 		{
 			m_party[i]->DrawBattle(m_partyPos[i], 200, 200, 200);
 		}
+	}
+}
+
+void MenuState::ResetEnemyPos()
+{
+	if (!m_enemies.empty())
+	{
+		for (int i = 0; i < m_enemies.size(); i++)
+		{
+			m_enemies[i]->DrawBattle(m_enemyPos[i], 200, 200, 200);
+		}
+	}
+}
+
+void MenuState::PlayerTurnLeftClick(int& x, int& y)
+{
+	if (m_battleState == 1 && !deck->DrawingCards())
+	{
+		if (deck->InspectingDeck())
+		{
+			if (m_buttons[0]->MouseRect(x, y))
+			{
+				deck->ChangeRow(-1);
+				m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
+				m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
+			}
+			else if (m_buttons[1]->MouseRect(x, y))
+			{
+				deck->ChangeRow(1);
+				m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
+				m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
+			}
+		}
+		else
+		{
+			if (m_chosenCard == -1 && m_effectManager->IsEffectEmpty())
+			{
+				for (int i = 0; i < deck->GetHand().size(); i++)
+				{
+					if (MouseRect(x, y, deck->GetHand()[i]->GetPos()))
+					{
+						//player has selected a card from the hand
+						//does the user have enough mana to cast this?
+						if (deck->GetHand()[i]->GetStats()->GetMana() >= deck->GetHand()[i]->GetCard()->GetMana())
+						{
+							m_chosenCard = i;
+							m_targetType = deck->GetHand()[i]->GetCard()->GetTarget();
+							InitTargets();
+
+							SDL_Rect moveTo = m_partyPos[deck->GetHand()[i]->GetCol() - 1];
+							moveTo.x = moveTo.x + 25;
+							m_party[deck->GetHand()[i]->GetCol() - 1]->MoveTo(moveTo);
+						}
+						else
+						{
+							//insufficient mana
+							m_battleText->AddNewText("Insufficient Mana", x, y, 0, 0, 255);
+						}
+					}
+				}
+				for (int i = 0; i < deck->GetComboHand().size(); i++)
+				{
+					if (MouseRect(x, y, deck->GetComboHand()[i]->GetPos()))
+					{
+						//player has selected a combocard
+						//do the users have enough mana to cast this?
+						if (deck->GetComboHand()[i]->GetStats()->GetMana() >= deck->GetComboHand()[i]->GetCard()->GetMana()
+							&& deck->GetComboHand()[i]->GetStats2()->GetMana() >= deck->GetComboHand()[i]->GetCard()->GetMana())
+						{
+							m_chosenCard = i + 100;
+							m_targetType = deck->GetComboHand()[i]->GetCard()->GetTarget();
+							InitTargets();
+
+
+							SDL_Rect moveTo = m_partyPos[deck->GetHand()[deck->GetComboHighlights()[i][0]]->GetCol() - 1];
+							moveTo.x += 25;
+							m_party[deck->GetHand()[deck->GetComboHighlights()[i][0]]->GetCol() - 1]->MoveTo(moveTo);
+
+							moveTo = m_partyPos[deck->GetHand()[deck->GetComboHighlights()[i][1]]->GetCol() - 1];
+							moveTo.x += 25;
+							m_party[deck->GetHand()[deck->GetComboHighlights()[i][1]]->GetCol() - 1]->MoveTo(moveTo);
+						}
+						else
+						{
+							//insufficient mana
+							m_battleText->AddNewText("Insufficient Mana", x, y, 0, 0, 255);
+						}
+					}
+				}
+			}
+			else if (m_chosenCard > -1)
+			{
+				for (int i = 0; i < m_targets.size(); i++)
+				{
+					if (MouseRect(x, y, m_targets[i].m_pos)) //cant target a dead enemy
+					{
+						m_target = m_targets[i].m_id; //set the target
+						if (m_chosenCard >= 100) //is this a combo card?
+						{
+							//decrease mana
+							m_party[deck->GetHand()[deck->GetComboHighlights()[m_chosenCard - 100][0]]->GetCol() - 1]->GetStats()->ModifyMana(-deck->GetComboHand()[m_chosenCard - 100]->GetCard()->GetMana());
+							m_party[deck->GetHand()[deck->GetComboHighlights()[m_chosenCard - 100][1]]->GetCol() - 1]->GetStats()->ModifyMana(-deck->GetComboHand()[m_chosenCard - 100]->GetCard()->GetMana());
+							//add the effects
+							m_effectManager->SetUser(deck->GetHand()[deck->GetComboHighlights()[m_chosenCard - 100][0]]->GetCol() - 1, m_party[deck->GetHand()[deck->GetComboHighlights()[m_chosenCard - 100][0]]->GetCol() - 1]->GetStats()); //set the user in the effects manager to get stats from
+							m_effectManager->SetComboer(deck->GetHand()[deck->GetComboHighlights()[m_chosenCard - 100][1]]->GetCol() - 1, m_party[deck->GetHand()[deck->GetComboHighlights()[m_chosenCard - 100][1]]->GetCol() - 1]->GetStats()); //set the combo user, to get stats from
+							m_effectManager->AddEffects(deck->GetComboHand()[m_chosenCard - 100]->GetCard()->GetEffects(), deck->GetComboHand()[m_chosenCard - 100]->GetCard()->GetAniEffects()); //add all the card's effects
+						
+							//animate
+							m_party[deck->GetHand()[deck->GetComboHighlights()[m_chosenCard - 100][0]]->GetCol() - 1]->SetAnimation(deck->GetComboHand()[m_chosenCard - 100]->GetCard()->GetUAni());
+							m_party[deck->GetHand()[deck->GetComboHighlights()[m_chosenCard - 100][1]]->GetCol() - 1]->SetAnimation(deck->GetComboHand()[m_chosenCard - 100]->GetCard()->GetUAni());
+
+
+							deck->DiscardCC(m_chosenCard - 100); //discard the card
+						}
+						else
+						{
+							m_party[deck->GetHand()[m_chosenCard]->GetCol() - 1]->GetStats()->ModifyMana(-deck->GetHand()[m_chosenCard]->GetCard()->GetMana());
+							//effects
+							m_effectManager->SetUser(deck->GetHand()[m_chosenCard]->GetCol() - 1, m_party[deck->GetHand()[m_chosenCard]->GetCol() - 1]->GetStats());
+							m_effectManager->AddEffects(deck->GetHand()[m_chosenCard]->GetCard()->GetEffects(), deck->GetHand()[m_chosenCard]->GetCard()->GetAniEffects());
+
+							//animate
+							m_party[deck->GetHand()[m_chosenCard]->GetCol() - 1]->SetAnimation(deck->GetHand()[m_chosenCard]->GetCard()->GetUAni());
+
+							//Discard goes LAST
+							deck->DiscardCard(m_chosenCard);
+						}
+
+						//m_targetType = -1; //reset variables
+						m_chosenCard = -1;
+						deck->UpdateHandPosition(); //update removed cards
+						ResetAlliesPos(); //reset allies
+					}
+				}
+			}
+		}
+	}
+}
+
+
+void MenuState::DebugKeys(SDL_Keycode _key)
+{
+	switch (_key)
+	{
+	case SDLK_1:
+		m_battleText->AddNewText("1", m_partyPos[0].x + 100, m_partyPos[0].y + 100, 255, 0, 0);
+		m_party[0]->GetStats()->ModifyEffect(0, -1);
+		//m_party[0]->MoveTo({ 200,300,100,100 });
+		break;
+	case SDLK_2:
+		m_battleText->AddNewText("1", m_partyPos[0].x + 100, m_partyPos[0].y + 100, 0, 255, 0);
+		m_party[0]->GetStats()->ModifyEffect(0, 1);
+		break;
+	case SDLK_3:
+		m_enemies[0]->MoveTo({ m_enemyPos[0].x - 20 , m_enemyPos[0].y,m_enemyPos[0].w,m_enemyPos[0].h });
+		break;
+	case SDLK_4:
+		if (m_effectManager->IsEffectEmpty())
+		{
+			//m_target = 0;
+			//m_targetType = 4;
+			//m_effectManager->SetUser(0, m_enemies[0]->GetStats(), true);
+			//m_effectManager->AddEffects(m_enemies[0]->GetEffects(), m_enemies[0]->GetAniEffects());
+			m_battleState = 10;
+		}
+		break;
+	case SDLK_q:
+		deck->DrawCard(); m_chosenCard = -1;
+		break;
+	case SDLK_w:
+		deck->DiscardCard(0); m_chosenCard = -1;
+		break;
+	case SDLK_e:
+		deck->DiscardHand(); m_chosenCard = -1;
+		break;
+	case SDLK_r:
+		deck->ShuffleDiscardToDraw(); m_chosenCard = -1;
+		break;
+	case SDLK_t:
+		deck->DiscardCC(0); m_chosenCard = -1;
+		break;
+	case SDLK_a:
+		deck->ToggleDDD(0);
+		m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
+		m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
+		break;
+	case SDLK_z:
+		deck->ToggleDDD(1);
+		m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
+		m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
+		break;
+	case SDLK_x:
+		deck->ToggleDDD(2);
+		m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
+		m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
+		break;
+	case SDLK_s:
+		deck->ChangeRow(1);
+		m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
+		m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
+		break;
+	case SDLK_d:
+		deck->ChangeRow(-1);
+		m_buttons[0]->SetVisibility(deck->CanChangeRow(-1));
+		m_buttons[1]->SetVisibility(deck->CanChangeRow(1));
+		break;
+	default:
+		break;
+	}
+}
+
+void MenuState::DrawPhase()
+{
+	if (m_battleState == 0)
+	{
+		//restire mana
+		for each (std::shared_ptr<Character> chara in m_party)
+		{
+			chara->GetStats()->ModifyMana(1);
+		}
+		//int cardsToDraw = 0;
+		int cardsToDraw = 5 - deck->GetHand().size();
+		if (cardsToDraw > 0)
+			deck->DrawCards(cardsToDraw);
+		m_battleState = 1;
 	}
 }

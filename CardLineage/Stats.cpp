@@ -4,11 +4,11 @@
 
 Stats::Stats()
 {
-	m_hp = (std::shared_ptr<Stat>)new Stat();
-	m_atk = (std::shared_ptr<Stat>)new Stat();
-	m_mag = (std::shared_ptr<Stat>)new Stat();
-	m_ar = (std::shared_ptr<Stat>)new Stat();
-	m_mr = (std::shared_ptr<Stat>)new Stat();
+	m_hp = std::shared_ptr<Stat>(new Stat());
+	m_atk = std::shared_ptr<Stat>(new Stat());
+	m_mag = std::shared_ptr<Stat>(new Stat());
+	m_ar = std::shared_ptr<Stat>(new Stat());
+	m_mr = std::shared_ptr<Stat>(new Stat());
 	m_mana = 3;
 	m_maxMana = 3;
 }
@@ -16,18 +16,6 @@ Stats::Stats()
 
 Stats::~Stats()
 {
-	/*
-	delete m_hp;
-	delete m_atk;
-	delete m_mag;
-	delete m_ar;
-	delete m_mr;
-	*/
-	m_hp = nullptr;
-	m_atk = nullptr;
-	m_mag = nullptr;
-	m_ar = nullptr;
-	m_mr = nullptr;
 }
 
 int Stats::GetCurrentStat(int _i)
@@ -131,6 +119,7 @@ bool Stats::TakeDamage(int _amount, int _type, int _element)
 	{
 	case 0:
 		m_hp->ModEffect(-_amount);
+		break;
 	case 1:
 		damage = _amount;
 		if (damage > m_ar->GetCurrent())

@@ -28,7 +28,7 @@ public:
 	void InitCharacter(std::vector <std::shared_ptr<Card>> _card, std::vector <int> _cards, std::shared_ptr<Stats> _stats,  int _col); //initiates a character into the deck
 
 	void ShuffleDraw(); //shuffle the cards in the draw deck
-	void DrawCards(int _i) { m_cardsToDraw += (_i-1); DrawCard(); } //draw x ammount of cards from the draw deck
+	void DrawCards(int _i) { m_cardsToDraw = (_i-1); DrawCard(); } //draw x ammount of cards from the draw deck
 	void DrawCard();  //animation for drawing the cards
 	void SetHighlightCard(int _i, bool _comboDeck); //set the card that is being highlighted/magnified for inspection
 	void DiscardCard(int _i); //discard a particular card from the hand
@@ -55,6 +55,8 @@ public:
 	bool CanChangeRow(int _i);
 
 	void SetCCDeck(std::vector <std::shared_ptr<Card>> _cc) { combocards = _cc; }
+
+	bool DrawingCards() { return m_drawAni; }
 
 private:
 

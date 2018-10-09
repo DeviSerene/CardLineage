@@ -133,7 +133,7 @@ void CardHolder::SetText()
 
 		m_nameText = nullptr;
 	}
-	m_nameText = (std::shared_ptr<Text>)new Text(SpriteFactory::GetRenderer(), m_card->GetName(), col, abs((int)(0.1f * (float)m_position.w)), 15, 25);
+	m_nameText = std::shared_ptr<Text>(new Text(SpriteFactory::GetRenderer(), m_card->GetName(), col, abs((int)(0.1f * (float)m_position.w)), 15, 25));
 	//std::cout << "Created Text \n";
 
 	if (m_description != nullptr)
@@ -153,5 +153,5 @@ void CardHolder::SetText()
 	int w = m_position.w - (int)(0.3f * (float)m_position.w);
 	if (w <= 0)
 		w = 1;
-	m_description = (std::shared_ptr<TextBox>)new TextBox(m_desc, SpriteFactory::GetRenderer(), col, { m_position.x + 15, m_position.y + 100, w, m_position.h }, abs((int)(0.075f * (float)m_position.w)));
+	m_description = std::shared_ptr<TextBox>(new TextBox(m_desc, SpriteFactory::GetRenderer(), col, { m_position.x + 15, m_position.y + 100, w, m_position.h }, abs((int)(0.075f * (float)m_position.w))));
 }

@@ -9,16 +9,16 @@ TextBox::TextBox(std::string& _text, SDL_Renderer* _renderer, SDL_Color _colour,
 
 	std::string text;
 
-	TTF_SizeText(font, _text.c_str(), &w, &h);
+	TTF_SizeText(font, _text.c_str(), &w, &h); //get the size of the entire text string in the font
 	int textLength;
-	int division = (w / _position.w);
+	float division = ((float)w / (float)_position.w);
 	if (division != 0)
-		textLength = _text.size() / division;
+		textLength = _text.size() / division; //the max length of the sentences
 	else
-		textLength = 1;
+		textLength = _text.size();
 	
 	std::vector <std::string> words;
-	std::string word;
+	std::string word; //divide the text into words
 	for (int i = 0; i < _text.length(); i++)
 	{
 		if (_text.at(i) == ' ' || i == _text.length())
@@ -51,7 +51,7 @@ TextBox::TextBox(std::string& _text, SDL_Renderer* _renderer, SDL_Color _colour,
 				}
 			}
 		}
-		m_text.push_back((std::shared_ptr<Text>)new Text(_renderer, text, _colour, _textsize, _position.x, _position.y + (h*heightMultiply)));
+		m_text.push_back(std::shared_ptr<Text>(new Text(_renderer, text, _colour, _textsize, _position.x, _position.y + (h*heightMultiply))));
 		heightMultiply++;
 	}
 

@@ -12,7 +12,7 @@ public:
 	static void Draw(std::string _name, SDL_Rect _position) {GetSprite(_name, _position)->Draw(); }
 	static void Draw(std::string _name, SDL_Rect _position, Uint8 _r, Uint8 _g, Uint8 _b) { GetSprite(_name, _position)->DrawTint(_r,_g,_b); }
 	static void Draw(std::string _name, SDL_Rect _position, SDL_Rect& _cellRect) { GetSprite(_name, _position)->AniDraw(_cellRect); } //two Draws, for static/animation
-	static void Draw(std::string _name, SDL_Rect _position, SDL_Rect& _cellRect, Uint8 _r, Uint8 _g, Uint8 _b) { GetSprite(_name, _position)->TintAniDraw(_cellRect, _r, _g, _b); } //two Draws, for static/animation
+	static void Draw(std::string _name, SDL_Rect _position, SDL_Rect& _cellRect, Uint8 _r, Uint8 _g, Uint8 _b, bool flip = false) { GetSprite(_name, _position)->TintAniDraw(_cellRect, _r, _g, _b, flip); } //two Draws, for static/animation
 
 	static SDL_Renderer* GetRenderer() { return m_renderer; }
 

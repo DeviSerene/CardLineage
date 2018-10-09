@@ -47,13 +47,13 @@ void AnimationManager::AddAnimation(int _animationID, SDL_Rect _position)
 	switch (_animationID)
 	{
 	case 0:
-		m_animations.push_back((std::shared_ptr<Animation>)new Animation("assets/animation.png", "", 100, 100, 4, 5, 0.2f, _position));
+		m_animations.push_back(std::shared_ptr<Animation>(new Animation("assets/animation.png", "", 100, 100, 4, 5, 0.2f, _position)));
 		break;
 	case 1:
-		m_animations.push_back((std::shared_ptr<Animation>)new Animation("assets/battle/fire.png", "", 100, 100, 4, 1, 0.2f, _position));
+		m_animations.push_back(std::shared_ptr<Animation>(new Animation("assets/battle/fire.png", "", 100, 100, 4, 1, 0.2f, _position)));
 		break;
 	case 2:
-		m_animations.push_back((std::shared_ptr<Animation>)new Animation("assets/battle/cure.png", "", 100, 100, 4, 1, 0.2f, _position));
+		m_animations.push_back(std::shared_ptr<Animation>(new Animation("assets/battle/cure.png", "", 100, 100, 4, 1, 0.2f, _position)));
 		break;
 	}
 }

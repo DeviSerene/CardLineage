@@ -14,7 +14,7 @@ public:
 	void Draw();
 	void DrawTint(Uint8 _r, Uint8 _g, Uint8 _b);
 	void AniDraw(SDL_Rect& _cellRect); //draw for animations
-	void TintAniDraw(SDL_Rect& _cellRect, Uint8 _r, Uint8 _g, Uint8 _b ); //draw for animations
+	void TintAniDraw(SDL_Rect& _cellRect, Uint8 _r, Uint8 _g, Uint8 _b, bool flip); //draw for animations
 
 	std::string& GetName() { return m_name; } //used by SpriteFactory to locate sprites
 	void SetPos(SDL_Rect _position) { m_position = _position; } //used by SpriteFactory to update the position

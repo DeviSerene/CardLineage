@@ -4,8 +4,8 @@
 
 Character::Character()
 {
-	m_appearance = (std::shared_ptr<Appearance>)new Appearance();
-	m_stats = (std::shared_ptr<Stats>)new Stats();
+	m_appearance = std::shared_ptr<Appearance>(new Appearance());
+	m_stats = std::shared_ptr<Stats>(new Stats());
 
 	m_manaHighlight = 0;
 
@@ -38,7 +38,7 @@ Character::~Character()
 void Character::DrawBattle(SDL_Rect _pos, Uint8 _r, Uint8 _g, Uint8 _b)
 {
 	//draw character
-	m_appearance->Draw(_pos, _r, _g, _b);
+	m_appearance->Draw(_pos, _r, _g, _b, true);
 
 	DrawBattleBars(_pos);
 
@@ -64,8 +64,13 @@ void Character::DrawBattleBars(SDL_Rect& _pos)
 	//draw ar/mr bar
 	rect.y += 5;
 	rect.w = 40;
+	rect.w = (float)rect.w *((float)m_stats->GetCurrentStat(3) / (float)m_stats->GetMaxStat(3));
+	if (rect.w > 40) rect.w = 40;
 	SpriteFactory::Draw("assets/battle/ar.png", rect);
 	rect.x += 40;
+	rect.w = 40;
+	rect.w = (float)rect.w *((float)m_stats->GetCurrentStat(4) / (float)m_stats->GetMaxStat(4));
+	if (rect.w > 40) rect.w = 40;
 	SpriteFactory::Draw("assets/battle/mr.png", rect);
 	rect.x -= 40;
 	rect.w = 80;

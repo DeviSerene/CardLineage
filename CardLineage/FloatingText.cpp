@@ -14,7 +14,7 @@ FloatingText::FloatingText(SDL_Renderer* _renderer, std::string _text, int _x, i
 	m_colour.a = (Uint8)255;
 	m_a = 255.0f;
 	m_renderer = _renderer;
-	m_textbox = (std::shared_ptr<Text>)new Text(m_renderer, m_text, m_colour, 25, m_x, m_y);
+	m_textbox = std::shared_ptr<Text>(new Text(m_renderer, m_text, m_colour, 25, m_x, m_y));
 
 }
 

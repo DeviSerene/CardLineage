@@ -28,15 +28,15 @@ int main(int, char**)
 	}
 
 	// If the code reached here, everything is successful so far! :D
-	std::shared_ptr<GameData> gameData = (std::shared_ptr<GameData>)new GameData();
+	std::shared_ptr<GameData> gameData = std::shared_ptr<GameData>(new GameData());
 	if (gameData->Init(1600, 900) == 0)
 	{
 		return 0;
 	}
 
 
-	gameData->m_stateManager = (std::shared_ptr<GamestateManager>)new GamestateManager;
-	gameData->m_stateManager->AddState((std::shared_ptr<GameState>)new MenuState(gameData));
+	gameData->m_stateManager = std::shared_ptr<GamestateManager>(new GamestateManager());
+	gameData->m_stateManager->AddState(std::shared_ptr<GameState>(new MenuState(gameData)));
 	GameLoop(gameData); //start the game loop
 
 	// clean up, free any memory we have used

@@ -53,7 +53,7 @@ std::shared_ptr<Music> AudioManager::GetMusic(std::string& _name)
 
 void AudioManager::MusicLoad(std::string _name)
 {
-	m_musicList.push_back((std::shared_ptr<Music>)new Music(_name));
+	m_musicList.push_back(std::shared_ptr<Music>(new Music(_name)));
 }
 
 void AudioManager::MusicToggle()
@@ -120,5 +120,5 @@ std::shared_ptr<SoundEffect> AudioManager::GetSound(std::string& _name)
 
 void AudioManager::SoundLoad(std::string _name)
 {
-	m_soundList.push_back((std::shared_ptr<SoundEffect>)new SoundEffect(_name));
+	m_soundList.push_back(std::shared_ptr<SoundEffect>(new SoundEffect(_name)));
 }

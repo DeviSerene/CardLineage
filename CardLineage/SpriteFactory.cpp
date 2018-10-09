@@ -45,5 +45,5 @@ std::shared_ptr<Sprite> SpriteFactory::GetSprite(std::string& _name, SDL_Rect& _
 void SpriteFactory::CreateSprite(std::string& _name, SDL_Rect& _position)
 {
 	//add a new sprite to memory
-	m_spriteList.push_back((std::shared_ptr<Sprite>)new Sprite(m_renderer, _name, _position.x, _position.y, _position.w, _position.h));
+	m_spriteList.push_back(std::shared_ptr<Sprite>(new Sprite(m_renderer, _name, _position.x, _position.y, _position.w, _position.h)));
 }

@@ -68,7 +68,7 @@ void BattleDeck::InitCharacter(std::vector <std::shared_ptr<Card>> _card, std::v
 	for (int i = 0; i < _cards.size(); i++)
 	{
 
-		m_DrawPile.push_back((std::shared_ptr<CardHolder>)new CardHolder(_col, _stats, _card[_cards[i]]));
+		m_DrawPile.push_back(std::shared_ptr<CardHolder>(new CardHolder(_col, _stats, _card[_cards[i]])));
 	}
 }
 
@@ -337,7 +337,7 @@ void BattleDeck::SetHighlightCard(int _i, bool _comboDeck)
 			//	delete m_highlightCard;
 				m_highlightCard = nullptr;
 			}
-			m_highlightCard = (std::shared_ptr<CardHolder>)new CardHolder();
+			m_highlightCard = std::shared_ptr<CardHolder>(new CardHolder());
 			m_highlightCard->Set({ 675,75,250,400 }, m_Hand[_i]->GetCol(), m_Hand[_i]->GetStats(), m_Hand[_i]->GetCard());
 		}
 	}
@@ -349,7 +349,7 @@ void BattleDeck::SetHighlightCard(int _i, bool _comboDeck)
 		//	delete m_highlightCard;
 			m_highlightCard = nullptr;
 		}
-		m_highlightCard = (std::shared_ptr<CardHolder>)new CardHolder();
+		m_highlightCard = std::shared_ptr<CardHolder>(new CardHolder());
 		m_highlightCard->Set({ 675,75,250,400 }, m_ComboHand[_i]->GetCol(), m_ComboHand[_i]->GetStats(), m_ComboHand[_i]->GetStats2(), m_ComboHand[_i]->GetCard());
 		m_comboHighlight = m_combo[_i];
 	}
@@ -385,10 +385,20 @@ void BattleDeck::DrawHand(int _selectedCard)
 				{
 					m_Hand[i]->Draw();
 				}
+
 			}
 		}
 		if (!m_ComboHand.empty())
 		{
+
+			if (!m_comboHighlight.empty())
+			{
+				for (int i = 0; i < m_comboHighlight.size(); i++)
+				{
+					SpriteFactory::Draw("assets/cards/cardShine.png", m_Hand[m_comboHighlight[i]]->GetPos());
+				}
+			}
+
 			for (int i = 0; i < m_ComboHand.size(); i++)
 			{
 				if (_selectedCard-100 == i)
@@ -400,6 +410,7 @@ void BattleDeck::DrawHand(int _selectedCard)
 					m_ComboHand[i]->Draw();
 				}
 			}
+
 		}
 	}
 	else
@@ -445,13 +456,6 @@ void BattleDeck::DrawHand(int _selectedCard)
 		{
 			m_highlightCard->Draw();
 
-			if (!m_comboHighlight.empty())
-			{
-				for (int i = 0; i < m_comboHighlight.size(); i++)
-				{
-					SpriteFactory::Draw("assets/cards/cardShine.png", m_Hand[m_comboHighlight[i]]->GetPos());
-				}
-			}
 		}
 	}
 	
@@ -464,7 +468,7 @@ void BattleDeck::UpdateHandPosition()
 	//m_handPositions.clear();
 	SDL_Rect pos;
 	pos.x = 0;
-	pos.y = 500;
+	pos.y = 550;
 	pos.w = 150;
 	pos.h = 212;
 	float sep = 20.0f;
@@ -615,7 +619,7 @@ void BattleDeck::RefreshCHand()
 						if ((combocards[c]->GetCCNeeded()[0] == m_Hand[i]->GetCard() && combocards[c]->GetCCNeeded()[1] == m_Hand[j]->GetCard()) 
 							|| (combocards[c]->GetCCNeeded()[1] == m_Hand[i]->GetCard() && combocards[c]->GetCCNeeded()[0] == m_Hand[j]->GetCard()))
 						{
-							m_ComboHand.push_back((std::shared_ptr<CardHolder>)new CardHolder(m_Hand[i]->GetCol(), m_Hand[j]->GetCol(), m_Hand[i]->GetStats(), m_Hand[j]->GetStats(), combocards[c]));
+							m_ComboHand.push_back(std::shared_ptr<CardHolder>(new CardHolder(m_Hand[i]->GetCol(), m_Hand[j]->GetCol(), m_Hand[i]->GetStats(), m_Hand[j]->GetStats(), combocards[c])));
 							m_combo.push_back({ i,j });
 						}
 					}
@@ -634,7 +638,7 @@ void BattleDeck::UpdateCCPosition()
 	//m_handPositions.clear();
 		SDL_Rect pos;
 		pos.x = 0;
-		pos.y = 730;
+		pos.y = 780;
 		pos.w = 75;
 		pos.h = 106;
 		float sep = 10.0f;

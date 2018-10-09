@@ -1,0 +1,15 @@
+﻿  MenuState.cpp
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(177): warning C4018: '<': signed/unsigned mismatch
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(191): warning C4018: '<': signed/unsigned mismatch
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(227): warning C4018: '<': signed/unsigned mismatch
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(237): warning C4018: '<': signed/unsigned mismatch
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(284): warning C4018: '<': signed/unsigned mismatch
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(308): warning C4018: '<': signed/unsigned mismatch
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(320): warning C4018: '<': signed/unsigned mismatch
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(337): warning C4018: '<': signed/unsigned mismatch
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(343): warning C4018: '<': signed/unsigned mismatch
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(357): warning C4018: '<': signed/unsigned mismatch
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(364): warning C4018: '<': signed/unsigned mismatch
+c:\users\george\desktop\cardlineage\cardlineage\menustate.cpp(373): warning C4018: '<': signed/unsigned mismatch
+  CardLineage.vcxproj -> C:\Users\George\Desktop\CardLineage\Debug\CardLineage.exe
+  CardLineage.vcxproj -> C:\Users\George\Desktop\CardLineage\Debug\CardLineage.pdb (Full PDB)

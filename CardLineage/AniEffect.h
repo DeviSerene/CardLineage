@@ -6,7 +6,7 @@
 class AniEffect
 {
 public:
-	AniEffect(int _animationID, float _aniStart, float _effectStart);
+	AniEffect( int _animationID, float _aniStart, float _effectStart);
 	~AniEffect();
 
 	void Update(float& _deltaTime) { m_currentTime += _deltaTime; };
